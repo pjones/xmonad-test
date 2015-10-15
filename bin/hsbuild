@@ -42,6 +42,7 @@ if [ ! -r cabal.sandbox.config ]; then
         ADDED_VENDOR_DIRS=YES
         echo "==> add-source $VENDOR_DIR/$dir"
         cabal sandbox add-source $VENDOR_DIR/$dir
+        cabal install --reinstall $dir
       fi
     done
   fi
@@ -64,5 +65,5 @@ fi
 
 ################################################################################
 # Scan the source code for suggestions.
-[ -d "$SRC_DIR"  ] && hlint lint $SRC_DIR
-[ -d "$TEST_DIR" ] && hlint lint $TEST_DIR
+if [ -d "$SRC_DIR"  ]; then hlint lint $SRC_DIR;  fi
+if [ -d "$TEST_DIR" ]; then hlint lint $TEST_DIR; fi
