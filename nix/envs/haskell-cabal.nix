@@ -33,7 +33,8 @@ let
 in
   (pkgs.haskell.lib.addBuildTools drv [
     # Additional tools to make available:
-    pkgs.git
-    ghc.cabal-install
-    ghc.hlint
+    pkgs.git           # git-tag(1)
+    pkgs.binutils      # strip(1)
+    ghc.cabal-install  # cabal(1)
+    ghc.hlint          # hlint(1)
   ]).env

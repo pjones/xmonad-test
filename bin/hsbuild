@@ -10,7 +10,7 @@
 #
 #   https://github.com/pjones/hsutils/blob/master/LICENSE
 #
-# No part of the byline package, including this file, may be copied,
+# No part of the hsutils package, including this file, may be copied,
 # modified, propagated, or distributed except according to the terms
 # contained in the LICENSE file.
 
@@ -20,15 +20,25 @@ export HOME="$(mktemp -d)"
 
 ################################################################################
 # Some flags that can be overridden.
-CABAL_FLAGS="--enable-optimization"
-TEST_DIR=test
-SRC_DIR=src
+CABAL_FLAGS=${CABAL_FLAGS:-"--enable-optimization"}
+PACKAGE_FLAGS=${PACKAGE_FLAGS:-"-fmaintainer"}
+TEST_DIR=${TEST_DIR:-test}
+SRC_DIR=${SRC_DIR:-src}
+RUN_HLINT=${RUN_HLINT:-YES}
 VENDOR_DIR=vendor
 ADDED_VENDOR_DIRS=NO
 
 if [ -d "$TEST_DIR" ]; then
   CABAL_FLAGS="$CABAL_FLAGS --enable-tests"
 fi
+
+################################################################################
+# Clean up when we're done.
+finish () {
+  rm -rf $HOME
+}
+
+trap finish EXIT
 
 ################################################################################
 # Create a sandbox just in case cabal needs to install something.
@@ -52,7 +62,7 @@ fi
 
 ################################################################################
 # Build the project.
-cabal configure -fmaintainer $CABAL_FLAGS
+cabal configure $CABAL_FLAGS $PACKAGE_FLAGS
 
 if ! cabal build; then
   [ $ADDED_VENDOR_DIRS = 'YES' ] && rm cabal.sandbox.config
@@ -65,5 +75,7 @@ fi
 
 ################################################################################
 # Scan the source code for suggestions.
-if [ -d "$SRC_DIR"  ]; then hlint lint $SRC_DIR;  fi
-if [ -d "$TEST_DIR" ]; then hlint lint $TEST_DIR; fi
+if [ "$RUN_HLINT" = YES ]; then
+  if [ -d "$SRC_DIR"  ]; then hlint lint $SRC_DIR;  fi
+  if [ -d "$TEST_DIR" ]; then hlint lint $TEST_DIR; fi
+fi

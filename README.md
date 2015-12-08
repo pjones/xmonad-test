@@ -16,12 +16,19 @@
   * `nix-hs-build`: Uses `nix-hs-shell` and `hsbuild` to build a
     Haskell project
 
+  * `nix-hs-multi-build`: Uses `nix-hs-shell` and `hsbuild` to build a
+    Haskell project once for each defined compiler version
+
 ### Options
 
 The `nix-hs-shell` and `nix-hs-build` utilities can be given an
 argument to select the appropriate version of GHC.  For example:
 
     nix-hs-build --argstr compiler ghc784
+
+Additionally, profiling can be enabled by using `--argstr`:
+
+    nix-hs-build --argstr profiling true
 
 ### Nix Expressions
 

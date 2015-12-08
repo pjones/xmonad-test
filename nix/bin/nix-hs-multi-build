@@ -1,7 +1,7 @@
 #!/bin/sh -eu
 
 ################################################################################
-# Creates a default.nix file for building a Haskell project with nixpkgs.
+# Uses `nix-hs-shell' to run `hsbuild` once for each defined compiler.
 
 ################################################################################
 # This file is part of the package hsutils. It is subject to the
@@ -15,5 +15,15 @@
 # contained in the LICENSE file.
 
 ################################################################################
-nix-shell -p haskellPackages.cabal2nix \
-          --command "cabal2nix . -fmaintainer $@ > default.nix"
+COMPILERS=${COMPILERS:-"ghc7102 ghc784 ghc763"}
+BUILDER=${BUILDER:-${HOME}/bin/hsbuild}
+
+################################################################################
+for c in $COMPILERS; do
+  echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+  echo "=> $c"
+  echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+
+  rm -rf dist .cabal-sandbox cabal.sandbox.config
+  nix-hs-shell --argstr compiler $c --command ${BUILDER} "$@"
+done
