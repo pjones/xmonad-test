@@ -1,9 +1,8 @@
 #!/bin/sh -eu
 
 ################################################################################
-# Creates a default.nix file for building a Haskell project with nixpkgs.
-
-################################################################################
+# Build xmonad using hsbuild.
+#
 # This file is part of the package hsutils. It is subject to the
 # license terms in the LICENSE file found in the top-level directory
 # of this distribution and at:
@@ -15,5 +14,21 @@
 # contained in the LICENSE file.
 
 ################################################################################
-nix-shell -p haskellPackages.cabal2nix \
-          --command "cabal2nix . -fmaintainer $@ > default.nix"
+# Configure hsbuild for xmonad:
+export TEST_DIR=tests
+export RUN_HLINT=NO
+
+################################################################################
+builder=$HOME/bin/hsbuild
+local_builder=`basename $0`/../../bin/hsbuild
+
+if [ ! -x $builder ]; then
+  if [ -x $local_builder ]; then
+    builder=$local_builder
+  else
+    echo "ERROR: missing hsbuild"
+    exit 1
+  fi
+fi
+
+echo $builder && $builder
