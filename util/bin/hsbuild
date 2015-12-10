@@ -1,0 +1,81 @@
+#!/bin/sh -eu
+
+################################################################################
+# This is a simple wrapper around cabal to build Haskell projects.
+
+################################################################################
+# This file is part of the package hsutils. It is subject to the
+# license terms in the LICENSE file found in the top-level directory
+# of this distribution and at:
+#
+#   https://github.com/pjones/hsutils/blob/master/LICENSE
+#
+# No part of the hsutils package, including this file, may be copied,
+# modified, propagated, or distributed except according to the terms
+# contained in the LICENSE file.
+
+################################################################################
+# Keep cabal from being affected by local configuration.
+export HOME="$(mktemp -d)"
+
+################################################################################
+# Some flags that can be overridden.
+CABAL_FLAGS=${CABAL_FLAGS:-"--enable-optimization"}
+PACKAGE_FLAGS=${PACKAGE_FLAGS:-"-fmaintainer"}
+TEST_DIR=${TEST_DIR:-test}
+SRC_DIR=${SRC_DIR:-src}
+RUN_HLINT=${RUN_HLINT:-YES}
+VENDOR_DIR=vendor
+ADDED_VENDOR_DIRS=NO
+
+if [ -d "$TEST_DIR" ]; then
+  CABAL_FLAGS="$CABAL_FLAGS --enable-tests"
+fi
+
+################################################################################
+# Clean up when we're done.
+finish () {
+  rm -rf $HOME
+}
+
+trap finish EXIT
+
+################################################################################
+# Create a sandbox just in case cabal needs to install something.
+if [ ! -r cabal.sandbox.config ]; then
+  cabal sandbox init
+
+  # Register any local packages.
+  if [ -d $VENDOR_DIR ]; then
+    for dir in `ls "$VENDOR_DIR"`; do
+      if [ -r $VENDOR_DIR/$dir/$dir.cabal ]; then
+        ADDED_VENDOR_DIRS=YES
+        echo "==> add-source $VENDOR_DIR/$dir"
+        cabal sandbox add-source $VENDOR_DIR/$dir
+        cabal install --reinstall $dir
+      fi
+    done
+  fi
+
+  cabal install --only-dependencies $CABAL_FLAGS
+fi
+
+################################################################################
+# Build the project.
+cabal configure $CABAL_FLAGS $PACKAGE_FLAGS
+
+if ! cabal build; then
+  [ $ADDED_VENDOR_DIRS = 'YES' ] && rm cabal.sandbox.config
+  exit 1
+fi
+
+################################################################################
+# Optionally run the tests.
+[ -d "$TEST_DIR" ] && cabal test
+
+################################################################################
+# Scan the source code for suggestions.
+if [ "$RUN_HLINT" = YES ]; then
+  if [ -d "$SRC_DIR"  ]; then hlint lint $SRC_DIR;  fi
+  if [ -d "$TEST_DIR" ]; then hlint lint $TEST_DIR; fi
+fi

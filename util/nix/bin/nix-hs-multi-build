@@ -1,0 +1,29 @@
+#!/bin/sh -eu
+
+################################################################################
+# Uses `nix-hs-shell' to run `hsbuild` once for each defined compiler.
+
+################################################################################
+# This file is part of the package hsutils. It is subject to the
+# license terms in the LICENSE file found in the top-level directory
+# of this distribution and at:
+#
+#   https://github.com/pjones/hsutils/blob/master/LICENSE
+#
+# No part of the hsutils package, including this file, may be copied,
+# modified, propagated, or distributed except according to the terms
+# contained in the LICENSE file.
+
+################################################################################
+COMPILERS=${COMPILERS:-"ghc7102 ghc784 ghc763"}
+BUILDER=${BUILDER:-${HOME}/bin/hsbuild}
+
+################################################################################
+for c in $COMPILERS; do
+  echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+  echo "=> $c"
+  echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+
+  rm -rf dist .cabal-sandbox cabal.sandbox.config
+  nix-hs-shell --argstr compiler $c --command ${BUILDER} "$@"
+done
