@@ -19,7 +19,10 @@ executable xmonad-test
 
   ghc-options: -Wall -Werror
 
+  -- List all the dependencies needed by xmonad and xmonad-contrib so
+  -- that cabal2nix can ensure they are in the environment.
   build-depends: base
+               , QuickCheck
                , setlocale
                , xmonad
                , xmonad-contrib
