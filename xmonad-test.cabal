@@ -1,0 +1,25 @@
+------------------------------------------------------------------------------
+name:          xmonad-test
+version:       0.1.0.0
+synopsis:      xmonad release testing
+homepage:      http://github.com/pjones/xmonad-test
+license:       BSD2
+license-file:  LICENSE
+author:        Peter Jones <pjones@devalot.com>
+maintainer:    Peter Jones <pjones@devalot.com>
+copyright:     Copyright: (c) 2015 Peter J. Jones
+build-type:    Simple
+cabal-version: >=1.10
+
+------------------------------------------------------------------------------
+executable xmonad-test
+  default-language: Haskell2010
+  hs-source-dirs: src
+  main-is: Main.hs
+
+  ghc-options: -Wall -Werror
+
+  build-depends: base
+               , setlocale
+               , xmonad
+               , xmonad-contrib
