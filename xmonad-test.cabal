@@ -21,8 +21,12 @@ executable xmonad-test
 
   -- List all the dependencies needed by xmonad and xmonad-contrib so
   -- that cabal2nix can ensure they are in the environment.
-  build-depends: base
+  build-depends: Cabal
                , QuickCheck
+               , base
+               , pandoc
+               , pretty
+               , regex-posix
                , setlocale
                , xmonad
                , xmonad-contrib
